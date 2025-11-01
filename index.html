@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emailer Legend Pro - AI Communication Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: { DEFAULT: "hsl(142.1 76.2% 36.3%)", foreground: "#0A0A0A" },
+              secondary: { DEFAULT: "hsl(240 4% 16%)", foreground: "hsl(0 0% 95%)" },
+              muted: { DEFAULT: "hsl(240 4% 16%)", foreground: "hsl(240 5% 65%)" },
+              destructive: { DEFAULT: "hsl(0 84.2% 60.2%)", foreground: "#fff" },
+              success: { DEFAULT: "hsl(142.1 76.2% 36.3%)", foreground: "#fff" },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      * { font-family: 'Inter', sans-serif; }
+      html.dark {
+        color-scheme: dark;
+      }
+      body { 
+        background-color: #0A0A0A;
+        background-image: radial-gradient(circle at top right, rgb(20 184 166 / 0.1), transparent 40%);
+        min-height: 100vh; 
+      }
+      
+      .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; 
+        font-size: 0.875rem; font-weight: 500; transition: all 0.2s; cursor: pointer; padding: 0.625rem 1.25rem; }
+      .btn-primary { background: #34D399; color: #0A0A0A; font-weight: 600;
+        box-shadow: 0 0 20px -5px rgba(52, 211, 153, 0.3); }
+      .btn-primary:hover:not(:disabled) { background: #6EE7B7; box-shadow: 0 0 25px -5px rgba(52, 211, 153, 0.4); transform: translateY(-1px); }
+      .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+      .btn-secondary { background: #1f1f1f; color: #a3a3a3; border: 1px solid #2e2e2e; }
+      .btn-secondary:hover { background: #292929; color: #f5f5f5; border-color: #3f3f3f; }
+      .btn-ghost { background: transparent; padding: 0.5rem; color: #a3a3a3; }
+      .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #f5f5f5; }
+
+      .input, .textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid #3f3f46; border-radius: 0.5rem; 
+        transition: all 0.2s; background: #0A0A0A; color: #f5f5f5; }
+      .input:focus, .textarea:focus { outline: none; border-color: #34D399; box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2); }
+      .textarea { resize: vertical; min-height: 100px; }
+      
+      .card { background: #171717; border-radius: 0.75rem; border: 1px solid #262626; }
+      
+      .strategy-card { cursor: pointer; padding: 1.25rem; border-radius: 0.75rem; transition: all 0.2s; 
+        border: 2px solid transparent; background: #171717; }
+      .strategy-card:hover { transform: translateY(-2px); border-color: #3f3f46; }
+      .strategy-card.selected { border-color: #34D399; box-shadow: 0 0 15px -5px rgba(52, 211, 153, 0.2); }
+      
+      .badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 0.25rem 0.75rem; 
+        font-size: 0.75rem; font-weight: 600; }
+      
+      .spinner { border: 3px solid #262626; border-top: 3px solid #34D399; border-radius: 50%; 
+        width: 40px; height: 40px; animation: spin 1s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      
+      .slide-over { position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; height: 100vh; 
+        background: #0A0A0A; box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1); transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; overflow-y: auto; border-left: 1px solid #262626;}
+      .slide-over.open { right: 0; }
+      .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; 
+        transition: opacity 0.3s; z-index: 1000; }
+      .overlay.show { opacity: 1; pointer-events: all; }
+      
+      .tabs { display: flex; gap: 0.5rem; border-bottom: 1px solid #262626; margin-bottom: 1.5rem; }
+      .tab { padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 2px solid transparent; 
+        transition: all 0.2s; font-weight: 500; color: #a3a3a3; }
+      .tab:hover { color: #f5f5f5; }
+      .tab.active { color: #34D399; border-bottom-color: #34D399; }
+      
+      .accordion-item { border: 1px solid #262626; border-radius: 0.5rem; margin-bottom: 0.5rem; overflow: hidden; background: #171717;}
+      .accordion-header { padding: 1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; 
+        align-items: center; transition: background 0.2s; }
+      .accordion-header:hover { background: #262626; }
+      .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: #101010; }
+      .accordion-content.open { max-height: 2000px; padding: 1rem 1.25rem; }
+      .rotate-180 { transform: rotate(180deg); }
+      
+      .toast { position: fixed; bottom: 1rem; right: 1rem; background: #171717; padding: 1rem 1.5rem; 
+        border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; 
+        align-items: center; gap: 0.75rem; z-index: 1002; animation: slideIn 0.3s ease-out; border: 1px solid #262626; color: white; }
+      @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+      
+      .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+      .comparison-card { border: 2px solid #262626; border-radius: 0.75rem; padding: 1.25rem; transition: all 0.3s; background: #171717; }
+      .comparison-card:hover { border-color: #3f3f46; }
+      .comparison-card.winner { border-color: #34D399; background: linear-gradient(135deg, rgba(52, 211, 153, 0.05) 0%, transparent 100%); }
+      
+      ::-webkit-scrollbar { width: 12px; }
+      ::-webkit-scrollbar-track { background: #0A0A0A; }
+      ::-webkit-scrollbar-thumb { background-color: #262626; border-radius: 6px; border: 3px solid #0A0A0A; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+</head>
+<body class="dark bg-black text-neutral-100">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
